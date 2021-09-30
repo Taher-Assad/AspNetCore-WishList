@@ -1,38 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using WishList.Data;
 
 namespace WishList.Controllers
 {
-    public class ItemController : Controller
-    {
-        public IActionResult Index()
-        {
-            return Index();
-        }
+	public class ItemController : Controller
+	{
+		private readonly ApplicationDbContext _context;
 
-        private readonly ApplicationDbContext _context;
-        public  ItemController (ApplicationDbContext context)
-        {
-            _context = context;
-        }
-        public IActionResult Create(HttpGetAttribute httpGet)
-        {
-            return Index();
-        }
-        public IActionResult Create(HttpPostAttribute httpPost)
-        {
-            return Index();
-        }
+		public ItemController(ApplicationDbContext context)
+		{
+			_context = context;
+		}
 
-        public IActionResult Delete(int Id)
-        {
-            return Index();
-        }
-    }
-   
+		public IActionResult Index()
+		{
+			var model = _context.Items.ToList();
+			return View("Index", model);
+		}
+
+		[HttpGet]
+		public IActionResult Create()
+		{
+			return View("Create");
+		}
+
+		[HttpPost]
+		public IActionResult Create(Models.Item item)
+		{
+			_context.Items.Add(item);
+			_context.SaveChanges();
+			return RedirectToAction("Index");
+		}
+
+		public IActionResult Delete(int id)
+		{
+			var item = _context.Items.FirstOrDefault(e => e.Id == id);
+			_context.Items.Remove(item);
+			_context.SaveChanges();
+			return RedirectToAction("Index");
+		}
+	}
 }
